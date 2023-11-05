@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background-image: url("1.jpg");
+            font-family: Arial, sans-serif;
+        }
+
+        h2 {
+            color: white;
+        }
+
+        h3 {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 2em;
+            color: yellow;
+        }
+
+        h1 {
+            font-size: 50px;
+            font-family: Impact, Arial, sans-serif;
+            text-align: center;
+            color: white;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 300px;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid grey;
+            transition: transform 0.2s, box-shadow 0.2s, color 0.2s;
+        }
+
+        .cell:hover {
+            transform: scale(1.05);
+            box-shadow: 5px 5px 10px #888888;
+        }
+
+        .cell:active {
+            transform: scale(0.95);
+        }
+
+        #turn {
+            margin-top: 20px;
+            font-size: 1.5em;
+            color: white;
+        }
+
+        .button-container {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            font-size: 1.5em;
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>TIC TAC TOE</h1>
+    <div class="container">
+        <div class="board" id="board"></div>
+        <h3 id="turn">Player 1's Turn</h3>
+        <div class="button-container">
+            <button class="button" id="newGameButton">New Game</button>
+            <button class="button" id="resetButton">Reset</button>
+        </div>
+    </div>
+    <script>
+        let player1 = prompt("Enter Player 1 Name:");
+        let player2 = prompt("Enter Player 2 Name:");
+        
+        if (!player1) {
+            player1 = "Player 1";
+        }
+        if (!player2) {
+            player2 = "Player 2";
+        }
+
+        const board = document.getElementById("board");
+        const cells = Array.from({ length: 9 }, () => "");
+        let currentPlayer = "X";
+        let gameActive = true;
+
+        function handleCellClick(cellIndex) {
+            if (!gameActive || cells[cellIndex] !== "") return;
+
+            cells[cellIndex] = currentPlayer;
+            document.getElementById(cellIndex).innerText = currentPlayer;
+            if (checkWin()) {
+                announceWinner(currentPlayer === "X" ? player1 : player2);
+            } else if (checkDraw()) {
+                announceDraw();
+            } else {
+                currentPlayer = currentPlayer === "X" ? "O" : "X";
+                document.getElementById("turn").innerText = `Player's Turn: ${currentPlayer === "X" ? player1 : player2}`;
+            }
+        }
+
+        function checkWin() {
+            const winCombinations = [
+                [0, 1, 2],
+                [3, 4, 5],
+                [6, 7, 8],
+                [0, 3, 6],
+                [1, 4, 7],
+                [2, 5, 8],
+                [0, 4, 8],
+                [2, 4, 6]
+            ];
+
+            for (const [a, b, c] of winCombinations) {
+                if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function checkDraw() {
+            return cells.every(cell => cell !== "");
+        }
+
+        function announceWinner(winner) {
+            gameActive = false;
+            document.getElementById("turn").innerHTML = `<strong>Congratulations, ${winner} won!</strong> Play a new game?`;
+            document.getElementById("newGameButton").style.display = "block";
+        }
+
+        function announceDraw() {
+            gameActive = false;
+            document.getElementById("turn").innerHTML = "<strong>It's a draw!</strong> Play a new game?";
+            document.getElementById("newGameButton").style.display = "block";
+        }
+
+        function resetGame() {
+            cells.fill("");
+            currentPlayer = "X";
+            gameActive = true;
+            document.getElementById("newGameButton").style.display = "none";
+            document.getElementById("turn").innerText = `Player's Turn: ${player1}`;
+            document.querySelectorAll(".cell").forEach(cell => cell.innerText = "");
+        }
+
+        cells.forEach((_, index) => {
+            const cellElement = document.createElement("div");
+            cellElement.classList.add("cell");
+            cellElement.id = index;
+            cellElement.addEventListener("click", () => handleCellClick(index));
+            board.appendChild(cellElement);
+        });
+
+        document.getElementById("newGameButton").addEventListener("click", () => {
+            resetGame();
+        });
+    </script>
+</body>
+</html>
